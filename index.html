@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eas_EV — India EV Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="vendor/MarkerCluster.css">
+<link rel="stylesheet" href="vendor/MarkerCluster.Default.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Floating circular layer button (Google-Maps style, top-right) -->
+<button class="layer-fab" id="layersBtn" title="Map layers">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+</button>
+<div class="layers-pop" id="layersPop">
+  <h3 class="grp">Base map</h3>
+  <div class="base-grid">
+    <button class="base-card active" data-base="dark"><div class="bthumb th-dark"></div>Dark</button>
+    <button class="base-card" data-base="streets"><div class="bthumb th-streets"></div>Streets</button>
+    <button class="base-card" data-base="satellite"><div class="bthumb th-sat"></div>Satellite</button>
+    <button class="base-card" data-base="terrain"><div class="bthumb th-terr"></div>Terrain</button>
+  </div>
+  <h3 class="grp" id="bndGrpTitle">Boundary level</h3>
+  <label class="switch-row" id="row-bnd-states"><input type="checkbox" id="bnd-states"> State boundaries</label>
+  <label class="switch-row" id="row-bnd-districts"><input type="checkbox" id="bnd-districts"> District boundaries</label>
+  <label class="switch-row" id="row-bnd-subdistricts"><input type="checkbox" id="bnd-subdistricts"> Sub-district boundaries</label>
+  <div class="note" id="bndScopeNote" style="display:none"></div>
+  <h3 class="grp">Charger density</h3>
+  <label class="switch-row"><input type="checkbox" data-heat="density"> Charger density heatmap</label>
+  <div class="dens-modes">
+    <select id="densMode" onchange="Intel.densModeChanged()">
+      <option value="all">Overall density</option>
+      <option value="type">By charger type</option>
+      <option value="operator">By operator</option>
+    </select>
+    <select id="densSub" style="display:none" onchange="Intel.refreshHeat()"></select>
+  </div>
+  <div class="dl-row" style="margin-top:8px">
+    <button class="btn sm" onclick="Intel.densityReport('docx')">Word</button>
+    <button class="btn sm" onclick="Intel.densityReport('xlsx')">Excel</button>
+    <button class="btn sm" onclick="Intel.densityReport('pdf')">PDF</button>
+    <button class="btn sm" onclick="Intel.densityReport('png')">PNG</button>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo-chip" id="logoChip"><img src="assets/easev-mark.png" alt="Eas_EV" class="brand-logo"></div>
+    <span class="brand-name"><span class="bn-a">Eas</span><span class="bn-u">_</span><span class="bn-b">EV</span></span>
+  </div>
+  <div class="search-wrap">
+    <div class="search-pill">
+      <span class="s-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <input id="searchInput" type="text" placeholder="Search location..." autocomplete="off">
+      <button class="mic-btn" id="searchMic" title="Voice search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg></button>
+      <button class="go-btn" onclick="App.runSearch()">Search</button>
+      <div class="search-suggest" id="searchSuggest"></div>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <div class="top-actions">
+    <button class="myloc-btn" onclick="App.locateMe()" title="My location" aria-label="My location"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8.5"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4"/></svg></button>
+  </div>
+</header>
+
+<nav class="rail">
+  <button class="rail-btn" data-drawer="stations" title="EV stations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg><span>Stations</span></button>
+  <button class="rail-btn" data-drawer="amenities" title="Amenities"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-7-10a7 7 0 0 1 14 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg><span>Amenities</span></button>
+  <button class="rail-btn" data-drawer="trip" title="Trip planner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg><span>Trip</span></button>
+  <button class="rail-btn" data-drawer="data" title="Data export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Data</span></button>
+  <div class="rail-sep"></div>
+  <button class="rail-btn intel" data-drawer="intel" title="Strategic Intelligence"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span>Intel</span></button>
+  <div class="rail-sep"></div>
+  <button class="rail-btn net" data-drawer="net" title="Eas_EV.net — Explainable ML"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M12 7.2 6 17M12 7.2 18 17M7.2 19h9.6"/></svg><span>.net</span></button>
+</nav>
+
+<aside class="drawer" id="drawer">
+  <div class="drawer-head"><h2 id="drawerTitle">Panel</h2><button class="x" onclick="App.closeDrawer()">&#10005;</button></div>
+  <div class="drawer-body">
+
+    <div class="dpanel" id="dp-stations">
+      <h3 class="grp">Charger types</h3>
+      <label class="ftype"><input type="checkbox" checked data-type="AC"><span class="dot" style="background:#4f8ef7"></span>AC<span class="cnt" id="cnt-AC">0</span></label>
+      <label class="ftype"><input type="checkbox" checked data-type="DC"><span class="dot" style="background:#ef4444"></span>DC<span class="cnt" id="cnt-DC">0</span></label>
+      <label class="ftype"><input type="checkbox" checked data-type="AC_DC"><span class="dot" style="background:#facc15"></span>AC + DC<span class="cnt" id="cnt-AC_DC">0</span></label>
+      <label class="ftype"><input type="checkbox" checked data-type="SWAP"><span class="dot" style="background:#22c55e"></span>Battery Swap<span class="cnt" id="cnt-SWAP">0</span></label>
+      <h3 class="grp">Speed filter <span class="hint">(tick to show only)</span></h3>
+      <label class="ftype"><input type="checkbox" data-speed="fast"><span class="dot" style="background:#f97316"></span>⚡ Fast charging (≥50 kW)<span class="cnt" id="cnt-fast">0</span></label>
+      <label class="ftype"><input type="checkbox" data-speed="ultra"><span class="dot" style="background:#8b5cf6"></span>⚡⚡ Ultra fast (≥150 kW)<span class="cnt" id="cnt-ultra">0</span></label>
+      <h3 class="grp">Search radius <span class="hint">(point / city mode)</span></h3>
+      <div class="slider-row"><input type="range" id="radiusSlider" min="2" max="50" value="10"><span class="val" id="radVal">10 km</span></div>
+      <button class="btn full" onclick="App.reloadStations()">&#128260; Apply radius here</button>
+      <div class="note" id="stationNote">Search a place or drop a pin to load stations.</div>
+    </div>
+
+    <div class="dpanel" id="dp-amenities">
+      <div class="am-search"><input type="text" id="amSearch" placeholder="Search amenities…" oninput="Amen.filterUI(this.value)"></div>
+      <div class="am-toolbar">
+        <button class="btn sm" onclick="App.loadSelectedAmenities()">Load selected</button>
+        <button class="btn sm ghost" onclick="App.clearAmenities()">Clear all</button>
+      </div>
+      <div id="amFeedback" class="am-feedback"></div>
+      <div id="amenityGroups"></div>
+      <h3 class="grp" style="margin-top:14px">📄 Amenities report</h3>
+      <div class="am-toolbar">
+        <button class="btn sm" onclick="Amen.report('docx')">Word</button>
+        <button class="btn sm" onclick="Amen.report('xlsx')">Excel</button>
+        <button class="btn sm" onclick="Amen.report('pdf')">PDF</button>
+      </div>
+      <div class="note" style="font-size:11px;padding:0 2px 6px">Selected amenity layers → marked area map, per-category density, and full detail tables.</div>
+    </div>
+
+    <div class="dpanel" id="dp-trip">
+      <h3 class="grp">Vehicle <span class="hint">(pick a model to auto-fill)</span></h3>
+      <div class="veh-picker">
+        <select id="vehMake" onchange="SmartTrip.onMake(this.value)"><option value="">Company…</option></select>
+        <select id="vehModel" onchange="SmartTrip.onModel(this.value)"><option value="">Model…</option></select>
+      </div>
+      <div class="trip-veh">
+        <div class="tv-row"><label>Battery</label><input type="number" id="tripBattery" value="80" min="5" max="100"><span>%</span></div>
+        <div class="tv-row"><label>Full range</label><input type="number" id="tripRange" value="300" min="80" max="800"><span>km</span></div>
+      </div>
+      <label class="smart-toggle"><input type="checkbox" id="smartSuggest" checked><span class="st-track"><span class="st-thumb"></span></span><span class="st-label">Smart suggestions <span class="hint">(breaks, cafés, on-route chargers)</span></span></label>
+      <h3 class="grp">Stops <span class="hint">(&#9650;&#9660; reorder)</span></h3>
+      <div id="waypointList"></div>
+      <button class="btn sm ghost full" onclick="Trip.addWaypoint()">&#65291; Add stop</button>
+      <button class="btn full" onclick="Trip.plan()">&#129517; Plan smart trip</button>
+      <button class="btn full gmaps" id="gmapsBtn" style="display:none" onclick="SmartTrip.openInGoogleMaps()">Go through Google Maps</button>
+      <div id="tripSummary"></div>
+      <div id="tripSaveRow" style="display:none"><button class="btn full ghost" onclick="Trip.saveCurrent()">&#128190; Save this plan</button></div>
+      <h3 class="grp">Saved plans <span class="hint">(this browser)</span></h3>
+      <div id="savedTrips" class="data-list"></div>
+      <h3 class="grp">Past journeys <span class="hint">(replay)</span></h3>
+      <div id="journeyList" class="data-list"></div>
+    </div>
+
+    <div class="dpanel" id="dp-data">
+      <h3 class="grp">Loaded datasets</h3>
+      <div id="dataList" class="data-list"></div>
+      <h3 class="grp">Export format</h3>
+      <div class="dl-grid">
+        <button class="btn" onclick="DL.download('csv')">&#11015; CSV</button>
+        <button class="btn" onclick="DL.download('geojson')">&#11015; GeoJSON</button>
+        <button class="btn" onclick="DL.download('kml')">&#11015; KML</button>
+        <button class="btn" onclick="DL.download('shp')">&#11015; Shapefile</button>
+      </div>
+      <div class="note">Shapefile exports a zip with .shp/.shx/.dbf/.prj/.cpg (WGS84) &mdash; opens in QGIS &amp; ArcGIS.</div>
+    </div>
+
+    <div class="dpanel" id="dp-intel">
+      <div class="intel-tabs">
+        <button class="itab active" data-itab="dash">Dashboard</button>
+        <button class="itab" data-itab="insight">Area</button>
+        <button class="itab" data-itab="compare">Compare</button>
+        <button class="itab" data-itab="invest">Invest</button>
+        <button class="itab" data-itab="forecast">Forecast</button>
+        <button class="itab" data-itab="rank">Rankings</button>
+      </div>
+      
+
+      <div class="itab-panel show" id="it-dash">
+        <div class="dash-switch">
+          <button class="dash-tab active" onclick="Intel.dashTab('national',this)">National</button>
+          <button class="dash-tab" onclick="Intel.dashTab('area',this)">Selected area</button>
+        </div>
+        <div id="dashOut"></div>
+      </div>
+      <div class="itab-panel" id="it-insight">
+        <button class="btn full" onclick="Intel.areaInsights()">&#129302; Analyze visible area</button>
+        <div id="insightOut"></div>
+      </div>
+      <div class="itab-panel" id="it-compare">
+        <h3 class="grp">Compare locations</h3>
+        <div id="cmpPlaces"></div>
+        <button class="btn sm ghost full" onclick="Intel.addComparePlace()">＋ Add place</button>
+        <button class="btn full" onclick="Intel.compare()">⚖ Compare all</button>
+        <div id="cmpOut"></div>
+      </div>
+      <div class="itab-panel" id="it-invest">
+        <h3 class="grp">Investment estimate <span class="hint">(area-aware)</span></h3>
+        <div class="inv-row"><label>Area</label><input id="invArea" type="text" placeholder="City / area (optional — uses map centre if blank)"></div>
+        <div class="inv-row"><label>Charger</label>
+          <select id="invType"><option value="AC">AC (7–22 kW)</option><option value="DC" selected>DC Fast (50–150 kW)</option></select></div>
+        <div class="inv-row"><label>Units</label><input id="invCount" type="number" value="4" min="1"></div>
+        <div class="inv-row"><label>Tariff Rs/kWh</label><input id="invTariff" type="number" value="18" min="1"></div>
+        <button class="btn full" onclick="Intel.investment()">&#128176; Run investment analysis</button>
+        <div id="invOut"></div>
+      </div>
+      <div class="itab-panel" id="it-forecast">
+        <h3 class="grp">Advanced forecast dashboard</h3>
+        <button class="btn full" onclick="Intel.forecastDashboard()">📈 Generate forecast (2025→2040)</button>
+        <div class="slider-row" style="margin-top:8px"><input type="range" id="fcYear" min="2025" max="2040" step="5" value="2025" oninput="Intel.setForecastYear(this.value)"><span class="val" id="fcYearVal">2025</span></div>
+        <div id="fcOut"></div>
+      </div>
+      <div class="itab-panel" id="it-rank">
+        <div class="dl-row">
+          <button class="btn sm" onclick="Intel.rankings('state')">🏆 By state</button>
+          <button class="btn sm" onclick="Intel.rankings('city')">🏙️ By city/district</button>
+        </div>
+        <div id="rankOut"></div>
+      </div>
+    </div>
+
+
+    <div class="dpanel" id="dp-net">
+      <div class="net-hero"><img src="assets/easev-mark.png" width="40" height="40" alt=""> <b class="net-title">Eas_EV.net</b><span class="net-badge" id="netBadge">…</span></div>
+      <div id="netTrainOut" style="display:none"></div>
+      <label class="net-drop" id="netAnalyzeDrop">
+        <input type="file" id="netAnalyzeFile" accept=".zip,.geojson,.json,.csv" hidden>
+        <span>Upload Shapefile ZIP / GeoJSON / CSV</span>
+      </label>
+      <div id="netOut"></div>
+    </div>
+  </div>
+</aside>
+
+<div class="area-panel" id="areaPanel">
+  <div class="ap-head"><b id="apTitle">&#128205; Area scan</b><button class="x" onclick="App.closeAreaPanel()">&#10005;</button></div>
+  <div class="slider-row"><input type="range" id="apRadius" min="1" max="25" value="3"><span class="val" id="apRadVal">3 km</span></div>
+  <div class="ap-btns">
+    <button class="btn full sm" onclick="App.scanArea()">&#128270; Scan area</button>
+    <button class="btn full sm ghost" onclick="Intel.openEvalForPin()">&#128202; Evaluate here</button>
+  </div>
+  <div class="note" style="margin-top:6px">Click any result chip to show those places on the map.</div>
+  <div class="ap-results" id="apResults"></div>
+</div>
+
+<div class="chain-bar" id="chainBar">
+  <span id="chainInfo">&#129517; 0 stops</span>
+  <button class="btn sm" onclick="Trip.chainToTrip()">&#128190; Save as trip</button>
+  <button class="btn sm ghost" onclick="Trip.clearChain()">&#10005; Clear</button>
+</div>
+
+<div class="legend" id="legend">
+  <div class="lrow"><span class="dot" style="background:#4f8ef7"></span>AC</div>
+  <div class="lrow"><span class="dot" style="background:#ef4444"></span>DC</div>
+  <div class="lrow"><span class="dot" style="background:#facc15"></span>AC+DC</div>
+  <div class="lrow"><span class="dot" style="background:#22c55e"></span>Swap</div>
+  <div class="lrow"><span class="dot" style="background:#8b5cf6"></span>Ultra</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Navigation HUD (Module 44 #11) -->
+<div class="nav-hud" id="navHud">
+  <div class="nav-next" id="navNext">Starting…</div>
+  <div class="nav-stats">
+    <div class="ns"><span class="ns-val" id="navBatt">—</span><span class="ns-lab">battery</span></div>
+    <div class="ns"><span class="ns-val" id="navDist">— km</span><span class="ns-lab">remaining</span></div>
+    <div class="ns"><span class="ns-val" id="navSpeed">— km/h</span><span class="ns-lab">speed</span></div>
+    <div class="ns"><span class="ns-val" id="navEta">—</span><span class="ns-lab">ETA</span></div>
+    <div class="ns"><span class="ns-val" id="navRange">— km</span><span class="ns-lab">range left</span></div>
+    <div class="ns"><span class="ns-val" id="navState">—</span><span class="ns-lab">state</span></div>
+  </div>
+</div>
+<div class="nav-side" id="navSide">
+  <button class="nav-side-btn" id="nav3dBtn" onclick="Trip.toggle3D()" title="3D view">🧊<span>3D view</span></button>
+  <button class="nav-side-btn danger" onclick="Trip.exitNavigation()" title="Cancel navigation">✕<span>Cancel</span></button>
+  <button class="nav-side-btn accent" id="navPauseBtn" onclick="Trip.togglePause()" title="Pause / Resume">⏸<span>Pause</span></button>
+</div>
+
+<!-- Eas_EV AI assistant — animated robot (waves hi on load, checks in periodically) -->
+<div class="ai-greet" id="aiGreet">
+  <span id="aiGreetText">Hi! I am <b>Boney</b>, your AI assistant.</span>
+  <button class="ag-x" onclick="Agent.dismissGreet()" title="Dismiss">✕</button>
+</div>
+<button class="chat-fab" id="chatFab" title="Boney — Eas_EV Assistant" aria-label="Open Boney assistant">
+  <span class="fab-orb">
+    <svg class="fab-robot" viewBox="9 0 46 46" width="30" height="30" aria-hidden="true">
+      <path class="rb-antenna" d="M32 10 V4" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+      <circle class="rb-tip" cx="32" cy="3.4" r="2.4" fill="#a7f3d0"/>
+      <g class="rb-headg">
+        <rect class="rb-head" x="15" y="10" width="34" height="24" rx="11" fill="#fff"/>
+        <rect class="rb-visor" x="19.5" y="15" width="25" height="14" rx="7" fill="#0b2447"/>
+        <circle class="rb-eye rb-eye-l" cx="27" cy="22" r="2.9" fill="#5eead4"/>
+        <circle class="rb-eye rb-eye-r" cx="37" cy="22" r="2.9" fill="#5eead4"/>
+        <path class="rb-mouth" d="M28 26.5 q4 2.4 8 0" stroke="#5eead4" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </span>
+  <span class="fab-ring"></span><span class="fab-ring r2"></span>
+</button>
+<div class="chat-win" id="chatWin">
+  <div class="chat-head">
+    <div class="ai-orb"><svg class="fab-robot" viewBox="10 2 44 46" width="30" height="30"><path class="rb-antenna" d="M32 12 V6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle class="rb-tip" cx="32" cy="5" r="2.4" fill="#a7f3d0"/><rect x="14" y="14" width="36" height="30" rx="12" fill="#fff"/><rect x="19" y="20" width="26" height="16" rx="8" fill="#0b2447"/><circle class="rb-eye rb-eye-l" cx="27" cy="28" r="3.1" fill="#5eead4"/><circle class="rb-eye rb-eye-r" cx="37" cy="28" r="3.1" fill="#5eead4"/><rect class="rb-scan" x="19" y="20" width="26" height="4" rx="2" fill="#93c5fd" opacity="0.55"/></svg></div>
+    <div class="ch-meta"><h2>Boney · Eas_EV Assistant</h2><p>AI copilot &middot; voice &middot; vision &middot; map-connected</p></div>
+    <button class="x" onclick="Agent.toggle()">&#10005;</button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="msg ai">Hi! Ask me anything &mdash; find chargers, plan trips, search places, evaluate a site, or upload a photo and I'll identify it.</div>
+  </div>
+  <div class="suggest" id="chatSuggest">
+    <span class="sg" data-q="Find nearest DC fast charger">Nearest DC</span>
+    <span class="sg" data-q="Plan a trip from Mumbai to Pune with 60% battery">Trip planner</span>
+    <span class="sg" data-q="Analyze this area for a new charging station">Area insights</span>
+  </div>
+  <div class="chat-input">
+    <button class="ci-btn red" id="photoBtn" title="Upload a photo to identify"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
+    <input type="file" id="photoInput" accept="image/*" hidden>
+    <input id="chatInput" type="text" placeholder="Ask anything...">
+    <button class="ci-btn red" id="chatMic" title="Voice input"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+    <button class="send" id="sendBtn">&#10148;</button>
+  </div>
+</div>
+
+<script src="vendor/leaflet.js"></script>
+<script src="vendor/leaflet.markercluster.js"></script>
+<script src="vendor/leaflet-heat.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/shp.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/boundaries.js"></script>
+<script src="js/poi.js"></script>
+<script src="js/shp.js"></script>
+<script src="js/map.js"></script>
+<script src="js/amenities.js"></script>
+<script src="js/trip.js"></script>
+<script src="js/smarttrip.js"></script>
+<script src="js/intel.js"></script>
+<script src="js/agent.js"></script>
+<script src="js/download.js"></script>
+<script src="js/net.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

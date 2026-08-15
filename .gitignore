@@ -1,0 +1,19 @@
+# ── secrets — NEVER commit ──
+backend/.env
+.env
+*.env
+
+# ── local database & caches ──
+backend/easev.db
+backend/__pycache__/
+__pycache__/
+*.pyc
+
+# ── python venv ──
+.venv/
+venv/
+
+# ── editor / OS ──
+.vscode/
+.DS_Store
+Thumbs.db

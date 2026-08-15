@@ -1,0 +1,446 @@
+{
+  "total_stations": 13258,
+  "total_states": 87,
+  "by_state": {
+    "Maharashtra": {
+      "total": 1604,
+      "ac": 1337,
+      "dc": 267
+    },
+    "Uttar Pradesh": {
+      "total": 1381,
+      "ac": 1214,
+      "dc": 167
+    },
+    "Karnataka": {
+      "total": 1075,
+      "ac": 807,
+      "dc": 268
+    },
+    "Tamil Nadu": {
+      "total": 1060,
+      "ac": 849,
+      "dc": 211
+    },
+    "Kerala": {
+      "total": 981,
+      "ac": 459,
+      "dc": 522
+    },
+    "Rajasthan": {
+      "total": 825,
+      "ac": 688,
+      "dc": 137
+    },
+    "Gujarat": {
+      "total": 748,
+      "ac": 616,
+      "dc": 132
+    },
+    "Telangana": {
+      "total": 733,
+      "ac": 639,
+      "dc": 94
+    },
+    "Haryana": {
+      "total": 683,
+      "ac": 597,
+      "dc": 86
+    },
+    "Madhya Pradesh": {
+      "total": 566,
+      "ac": 516,
+      "dc": 50
+    },
+    "Odisha": {
+      "total": 516,
+      "ac": 470,
+      "dc": 46
+    },
+    "Andhra Pradesh": {
+      "total": 492,
+      "ac": 350,
+      "dc": 142
+    },
+    "West Bengal": {
+      "total": 368,
+      "ac": 282,
+      "dc": 86
+    },
+    "Punjab": {
+      "total": 348,
+      "ac": 323,
+      "dc": 25
+    },
+    "Delhi": {
+      "total": 345,
+      "ac": 265,
+      "dc": 80
+    },
+    "Assam": {
+      "total": 226,
+      "ac": 210,
+      "dc": 16
+    },
+    "Bihar": {
+      "total": 211,
+      "ac": 191,
+      "dc": 20
+    },
+    "Uttarakhand": {
+      "total": 149,
+      "ac": 119,
+      "dc": 30
+    },
+    "Chhattisgarh": {
+      "total": 136,
+      "ac": 113,
+      "dc": 23
+    },
+    "Jharkhand": {
+      "total": 115,
+      "ac": 93,
+      "dc": 22
+    },
+    "Goa": {
+      "total": 85,
+      "ac": 67,
+      "dc": 18
+    },
+    "Karnataka ": {
+      "total": 65,
+      "ac": 4,
+      "dc": 61
+    },
+    "Himachal Pradesh": {
+      "total": 63,
+      "ac": 55,
+      "dc": 8
+    },
+    "Jammu and Kashmir": {
+      "total": 51,
+      "ac": 41,
+      "dc": 10
+    },
+    "Arunachal Pradesh": {
+      "total": 39,
+      "ac": 39,
+      "dc": 0
+    },
+    "Manipur": {
+      "total": 37,
+      "ac": 37,
+      "dc": 0
+    },
+    "Tripura": {
+      "total": 35,
+      "ac": 33,
+      "dc": 2
+    },
+    "Mizoram": {
+      "total": 34,
+      "ac": 34,
+      "dc": 0
+    },
+    "Maharashtra ": {
+      "total": 33,
+      "ac": 0,
+      "dc": 33
+    },
+    "Meghalaya": {
+      "total": 28,
+      "ac": 27,
+      "dc": 1
+    },
+    "Nagaland": {
+      "total": 28,
+      "ac": 28,
+      "dc": 0
+    },
+    "Rajasthan ": {
+      "total": 24,
+      "ac": 0,
+      "dc": 24
+    },
+    "Chandigarh": {
+      "total": 16,
+      "ac": 13,
+      "dc": 3
+    },
+    "Unknown": {
+      "total": 12,
+      "ac": 4,
+      "dc": 8
+    },
+    "Uttar pradesh": {
+      "total": 11,
+      "ac": 11,
+      "dc": 0
+    },
+    "Haryana ": {
+      "total": 11,
+      "ac": 0,
+      "dc": 11
+    },
+    "Puducherry": {
+      "total": 10,
+      "ac": 9,
+      "dc": 1
+    },
+    "Bangalore Urban": {
+      "total": 10,
+      "ac": 9,
+      "dc": 1
+    },
+    "Tamil Nadu ": {
+      "total": 8,
+      "ac": 1,
+      "dc": 7
+    },
+    "Sikkim": {
+      "total": 7,
+      "ac": 4,
+      "dc": 3
+    },
+    "TELANGANA": {
+      "total": 6,
+      "ac": 6,
+      "dc": 0
+    },
+    "MP": {
+      "total": 5,
+      "ac": 0,
+      "dc": 5
+    },
+    "Leh": {
+      "total": 4,
+      "ac": 4,
+      "dc": 0
+    },
+    "Pondicherry": {
+      "total": 4,
+      "ac": 1,
+      "dc": 3
+    },
+    "karnataka": {
+      "total": 4,
+      "ac": 4,
+      "dc": 0
+    },
+    "Keral": {
+      "total": 4,
+      "ac": 0,
+      "dc": 4
+    },
+    "Tamilnadu": {
+      "total": 4,
+      "ac": 2,
+      "dc": 2
+    },
+    "Delhi ": {
+      "total": 4,
+      "ac": 2,
+      "dc": 2
+    },
+    "telangana": {
+      "total": 3,
+      "ac": 3,
+      "dc": 0
+    },
+    "Dadra & Nagar Haveli and Daman & Diu": {
+      "total": 2,
+      "ac": 2,
+      "dc": 0
+    },
+    "Union territory of daman and diu": {
+      "total": 2,
+      "ac": 2,
+      "dc": 0
+    },
+    "Andaman and Nicobar Islands": {
+      "total": 2,
+      "ac": 2,
+      "dc": 0
+    },
+    "west bengal": {
+      "total": 2,
+      "ac": 2,
+      "dc": 0
+    },
+    "UTTAR PRADESH": {
+      "total": 2,
+      "ac": 1,
+      "dc": 1
+    },
+    "Ladakh": {
+      "total": 2,
+      "ac": 2,
+      "dc": 0
+    },
+    "Gujarat ": {
+      "total": 2,
+      "ac": 0,
+      "dc": 2
+    },
+    "GJ": {
+      "total": 2,
+      "ac": 0,
+      "dc": 2
+    },
+    "Uttarakhnad": {
+      "total": 2,
+      "ac": 0,
+      "dc": 2
+    },
+    "Tamil nadu": {
+      "total": 2,
+      "ac": 0,
+      "dc": 2
+    },
+    " Tamil Nadu": {
+      "total": 2,
+      "ac": 0,
+      "dc": 2
+    },
+    "KARNATAKA": {
+      "total": 2,
+      "ac": 2,
+      "dc": 0
+    },
+    "Bagmati Province": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "Jammu & Kashmir": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "maharashtra": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "BIHAR": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "MADHYA PRADESH": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "Andhra pradesh": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "tamil nadu": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "Telangana ": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "rajasthan": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "Uttar Pradesh ": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "TAMILNADU": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "RJ": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "New Dehi": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "MH": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "UTTAR PRADESH ": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "Lerala": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "uttar pradesh ": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "Kerala ": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "Mahrashtra": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "Karnatak": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "Punjab ": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "Villupuram": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "chennai": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "TamilNadu": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    },
+    "India": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "KA": {
+      "total": 1,
+      "ac": 1,
+      "dc": 0
+    },
+    "Dadra and Nagar Haveli and Daman and Diu": {
+      "total": 1,
+      "ac": 0,
+      "dc": 1
+    }
+  }
+}
